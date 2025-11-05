@@ -8,13 +8,64 @@ from modules.data_cleaning import DataCleaner
 from modules.statistical_analysis import StatisticalAnalyzer
 from modules.visualization import VisualizationEngine
 
+# UX Enhancement: Add progress tracking
+def track_user_progress():
+    """Track which steps user has completed for better guidance"""
+    if 'progress' not in st.session_state:
+        st.session_state.progress = {
+            'data_loaded': False,
+            'data_cleaned': False,
+            'analysis_done': False,
+            'visualization_created': False,
+            'data_exported': False
+        }
+    
+    # Update progress based on session state
+    if st.session_state.data is not None:
+        st.session_state.progress['data_loaded'] = True
+    if st.session_state.cleaned_data is not None:
+        st.session_state.progress['data_cleaned'] = True
+
+def show_progress_indicator():
+    """UX Enhancement: Visual progress indicator in sidebar"""
+    if 'progress' in st.session_state:
+        progress = st.session_state.progress
+        completed = sum(progress.values())
+        total = len(progress)
+        
+        st.sidebar.markdown("---")
+        st.sidebar.markdown("### 📊 Your Progress")
+        
+        # Progress bar
+        progress_pct = completed / total
+        st.sidebar.progress(progress_pct)
+        st.sidebar.caption(f"{completed}/{total} steps completed")
+        
+        # Checklist with visual feedback
+        steps = [
+            ("📁 Data Loaded", progress['data_loaded']),
+            ("🧹 Data Cleaned", progress['data_cleaned']),
+            ("📊 Analysis Done", progress['analysis_done']),
+            ("📈 Chart Created", progress['visualization_created']),
+            ("💾 Data Exported", progress['data_exported'])
+        ]
+        
+        for step, done in steps:
+            icon = "✅" if done else "⏳"
+            st.sidebar.caption(f"{icon} {step}")
+
 def main():
     # Page configuration
     st.set_page_config(
-        page_title="Data Analysis Dashboard",
-        page_icon="📊",
+        page_title="DataDash Analytics",
+        page_icon="✨",
         layout="wide",
-        initial_sidebar_state="expanded"
+        initial_sidebar_state="expanded",
+        menu_items={
+            'Get Help': 'https://github.com/ThekingGST/DataDash',
+            'Report a bug': 'https://github.com/ThekingGST/DataDash/issues',
+            'About': '# DataDash Analytics\nA modern data analysis platform'
+        }
     )
     
     # Custom CSS - Futuristic Dark Theme with Glassmorphism
@@ -360,6 +411,55 @@ def main():
             color: #94a3b8;
             font-size: 0.875rem;
         }
+        
+        /* UX Enhancement: Focus visible for accessibility */
+        *:focus-visible {
+            outline: 2px solid #7c3aed;
+            outline-offset: 2px;
+            border-radius: 0.25rem;
+        }
+        
+        /* UX Enhancement: Reduced motion for accessibility */
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+        
+        /* UX Enhancement: Loading skeleton */
+        .skeleton {
+            background: linear-gradient(90deg, rgba(26, 26, 46, 0.4) 25%, rgba(124, 58, 237, 0.1) 50%, rgba(26, 26, 46, 0.4) 75%);
+            background-size: 200% 100%;
+            animation: loading 1.5s infinite;
+        }
+        
+        @keyframes loading {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+        
+        /* UX Enhancement: Tooltip styling */
+        .tooltip {
+            background: rgba(15, 15, 30, 0.95);
+            border: 1px solid rgba(124, 58, 237, 0.3);
+            border-radius: 0.5rem;
+            padding: 0.5rem 1rem;
+            font-size: 0.875rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+        
+        /* UX Enhancement: High contrast mode support */
+        @media (prefers-contrast: high) {
+            .glass-card {
+                border: 2px solid #7c3aed;
+            }
+            
+            .stButton > button {
+                border: 2px solid white;
+            }
+        }
         </style>
     """, unsafe_allow_html=True)
     
@@ -370,21 +470,35 @@ def main():
     # Initialize session state
     init_session_state()
     
-    # Sidebar navigation with enhanced styling
+    # UX Enhancement: Track user progress
+    track_user_progress()
+    
+    # Sidebar navigation with enhanced styling and UX improvements
     with st.sidebar:
         st.markdown("### 🧭 Navigation")
+        st.caption("Choose a module to get started")
         st.markdown("")
+        
+        # UX: Smart navigation with contextual hints
+        nav_options = [
+            ("🏠 Home", "Overview and quick start"),
+            ("📁 Data Input", "Upload or enter data"),
+            ("🧹 Data Cleaning", "Clean and transform" if st.session_state.data is not None else "⚠️ Load data first"),
+            ("📊 Analysis", "Statistical insights" if st.session_state.data is not None else "⚠️ Load data first"),
+            ("📈 Visualization", "Create charts" if st.session_state.data is not None else "⚠️ Load data first"),
+            ("💾 Export", "Download results" if st.session_state.data is not None else "⚠️ Load data first")
+        ]
         
         page = st.radio(
             "Select Module",
-            ["🏠 Home", "📁 Data Input", "🧹 Data Cleaning", 
-             "📊 Analysis", "📈 Visualization", "💾 Export"],
-            label_visibility="collapsed"
+            [opt[0] for opt in nav_options],
+            label_visibility="collapsed",
+            help="Navigate between different modules"
         )
         
         st.markdown("---")
         
-        # Show data info if loaded with enhanced styling
+        # Show data info if loaded with enhanced styling and UX feedback
         if st.session_state.data is not None:
             st.success("✅ **Data Loaded**")
             col1, col2 = st.columns(2)
@@ -395,12 +509,50 @@ def main():
             
             if st.session_state.cleaned_data is not None:
                 st.info("🧹 **Cleaned Available**")
+            
+            # UX: Quick actions for loaded data
+            with st.expander("⚡ Quick Actions"):
+                if st.button("🔄 Reset Data", use_container_width=True, help="Clear all data and start over"):
+                    if st.session_state.get('confirm_reset', False):
+                        st.session_state.data = None
+                        st.session_state.cleaned_data = None
+                        st.session_state.progress = {k: False for k in st.session_state.progress}
+                        st.session_state.confirm_reset = False
+                        st.rerun()
+                    else:
+                        st.session_state.confirm_reset = True
+                        st.warning("Click again to confirm reset")
+                
+                if st.session_state.get('confirm_reset', False):
+                    if st.button("❌ Cancel", use_container_width=True):
+                        st.session_state.confirm_reset = False
+                        st.rerun()
         else:
             st.warning("⚠️ No data loaded")
-            st.caption("Upload data to get started")
+            st.caption("💡 Tip: Start by loading data")
+            
+            # UX: Onboarding guidance for new users
+            with st.expander("🎯 Getting Started Guide"):
+                st.markdown("""
+                1. **Load Data**: Go to Data Input
+                2. **Clean**: Remove duplicates, handle missing values
+                3. **Analyze**: Generate statistics
+                4. **Visualize**: Create charts
+                5. **Export**: Download results
+                """)
+        
+        # UX Enhancement: Show progress indicator
+        show_progress_indicator()
         
         st.markdown("---")
         st.caption("💫 Session active")
+        
+        # UX: Accessibility - Keyboard shortcuts hint
+        with st.expander("⌨️ Keyboard Shortcuts"):
+            st.caption("• Alt+H: Home")
+            st.caption("• Alt+D: Data Input")
+            st.caption("• Alt+C: Cleaning")
+            st.caption("• Alt+A: Analysis")
     
     # Route to pages
     if page == "🏠 Home":
@@ -611,43 +763,168 @@ def show_home_page():
 
 
 def show_data_input_page():
-    """Data input page with index display"""
-    st.header("📁 Data Input")
-    st.markdown("Upload your dataset or enter data manually")
+    """Data input page with enhanced UX and accessibility"""
+    # UX: Clear page title and description
+    st.markdown("## 📁 Data Input")
+    st.caption("Upload your dataset or create one manually")
+    st.markdown("")
     
+    # UX: Progressive disclosure - show method selection first
     input_method = st.radio(
-        "Choose input method:",
-        ["📤 Upload File", "✏️ Manual Entry"],
-        horizontal=True
+        "Choose how you want to add data:",
+        ["📤 Upload File", "✏️ Manual Entry", "📦 Sample Data"],
+        horizontal=True,
+        help="Select the method that works best for you"
     )
     
+    st.markdown("")
+    
     if input_method == "📤 Upload File":
+        # UX: Contextual help
+        with st.expander("💡 Upload Tips", expanded=False):
+            st.markdown("""
+            - **Supported formats**: CSV, Excel (.xlsx, .xls), JSON
+            - **Max file size**: 200 MB
+            - **Best practice**: Ensure first row contains column names
+            """)
+        
         df = DataInputManager.file_uploader()
         if df is not None:
             st.session_state.data = df
             st.session_state.data_source = 'upload'
+            st.session_state.progress['data_loaded'] = True
             st.balloons()
             st.success("✅ Data loaded successfully!")
+            
+            # UX: Immediate next step suggestion
+            st.info("💡 **Next Step**: Go to Data Cleaning to prepare your data")
     
-    else:  # Manual Entry
+    elif input_method == "✏️ Manual Entry":
+        # UX: Contextual help
+        with st.expander("💡 Manual Entry Tips", expanded=False):
+            st.markdown("""
+            - **Quick start**: Define columns and rows below
+            - **Editable**: Click any cell to edit
+            - **Dynamic**: Add/remove rows as needed
+            """)
+        
         df = DataInputManager.manual_entry()
         if df is not None:
             st.session_state.data = df
             st.session_state.data_source = 'manual'
+            st.session_state.progress['data_loaded'] = True
+            
+            # UX: Immediate next step suggestion
+            st.info("💡 **Next Step**: Review your data or proceed to Analysis")
     
-    # Preview
+    else:  # Sample Data
+        st.markdown("### 📦 Load Sample Dataset")
+        st.caption("Try the platform with pre-loaded datasets")
+        st.markdown("")
+        
+        col1, col2, col3 = st.columns(3)
+        
+        with col1:
+            st.markdown("""
+            <div class="glass-card" style="min-height: 200px;">
+                <h4>📊 Sales Data</h4>
+                <p style="color: #94a3b8; font-size: 0.9rem;">
+                    100 rows of sales transactions with dates, products, and revenue
+                </p>
+            </div>
+            """, unsafe_allow_html=True)
+            if st.button("Load Sales Data", use_container_width=True, key="load_sales"):
+                sample_data = pd.DataFrame({
+                    'Date': pd.date_range('2024-01-01', periods=100),
+                    'Product': np.random.choice(['Widget A', 'Widget B', 'Widget C', 'Widget D'], 100),
+                    'Sales': np.random.randint(100, 1000, 100),
+                    'Revenue': np.random.randint(1000, 10000, 100),
+                    'Region': np.random.choice(['North', 'South', 'East', 'West'], 100)
+                })
+                st.session_state.data = sample_data
+                st.session_state.data_source = 'sample'
+                st.session_state.progress['data_loaded'] = True
+                st.rerun()
+        
+        with col2:
+            st.markdown("""
+            <div class="glass-card" style="min-height: 200px;">
+                <h4>🌸 Iris Dataset</h4>
+                <p style="color: #94a3b8; font-size: 0.9rem;">
+                    Classic ML dataset with flower measurements and species classification
+                </p>
+            </div>
+            """, unsafe_allow_html=True)
+            if st.button("Load Iris Data", use_container_width=True, key="load_iris"):
+                try:
+                    from sklearn.datasets import load_iris
+                    iris = load_iris()
+                    sample_data = pd.DataFrame(
+                        data=iris.data,
+                        columns=iris.feature_names
+                    )
+                    sample_data['species'] = iris.target
+                    st.session_state.data = sample_data
+                    st.session_state.data_source = 'sample'
+                    st.session_state.progress['data_loaded'] = True
+                    st.rerun()
+                except ImportError:
+                    st.error("❌ scikit-learn not installed")
+                except Exception as e:
+                    st.error(f"❌ Error: {str(e)}")
+        
+        with col3:
+            st.markdown("""
+            <div class="glass-card" style="min-height: 200px;">
+                <h4>📈 Random Data</h4>
+                <p style="color: #94a3b8; font-size: 0.9rem;">
+                    50 rows of synthetic numerical and categorical data for testing
+                </p>
+            </div>
+            """, unsafe_allow_html=True)
+            if st.button("Load Random Data", use_container_width=True, key="load_random"):
+                sample_data = pd.DataFrame({
+                    'ID': range(1, 51),
+                    'Value_A': np.random.randn(50),
+                    'Value_B': np.random.randn(50) * 10,
+                    'Category': np.random.choice(['X', 'Y', 'Z'], 50)
+                })
+                st.session_state.data = sample_data
+                st.session_state.data_source = 'sample'
+                st.session_state.progress['data_loaded'] = True
+                st.rerun()
+    
+    # Preview section (only show if data exists)
     if st.session_state.data is not None:
         st.markdown("---")
-        st.subheader("📋 Data Preview")
+        st.markdown("### 📋 Data Preview")
+        st.markdown("")
         
-        # Show row count selector and index toggle
+        # UX: Enhanced metrics display
+        col1, col2, col3, col4, col5 = st.columns(5)
+        with col1:
+            st.metric("📋 Total Rows", f"{len(st.session_state.data):,}")
+        with col2:
+            st.metric("📊 Columns", len(st.session_state.data.columns))
+        with col3:
+            st.metric("💾 Memory", f"{st.session_state.data.memory_usage(deep=True).sum() / 1024:.1f} KB")
+        with col4:
+            st.metric("🔍 Duplicates", st.session_state.data.duplicated().sum())
+        with col5:
+            st.metric("⚠️ Missing", st.session_state.data.isnull().sum().sum())
+        
+        st.markdown("")
+        
+        # UX: Collapsible preview controls
         col1, col2 = st.columns([3, 1])
         
         with col1:
-            rows_to_show = st.slider("Rows to display", 5, 50, 10, key="preview_rows")
+            rows_to_show = st.slider("Rows to display", 5, 50, 10, key="preview_rows",
+                                     help="Adjust to see more or fewer rows")
         
         with col2:
-            show_index = st.checkbox("Show Index", value=True, key="show_index_data_input")
+            show_index = st.checkbox("Show Index", value=True, key="show_index_data_input",
+                                     help="Toggle row index visibility")
         
         # Display dataframe
         if show_index:
@@ -655,102 +932,238 @@ def show_data_input_page():
         else:
             st.dataframe(st.session_state.data.head(rows_to_show).reset_index(drop=True), 
                         use_container_width=True)
-        
-        # Quick stats
-        col1, col2, col3, col4, col5 = st.columns(5)
-        col1.metric("Total Rows", f"{len(st.session_state.data):,}")
-        col2.metric("Total Columns", len(st.session_state.data.columns))
-        col3.metric("Memory Usage", f"{st.session_state.data.memory_usage(deep=True).sum() / 1024:.2f} KB")
-        col4.metric("Duplicates", st.session_state.data.duplicated().sum())
-        col5.metric("Index Type", type(st.session_state.data.index).__name__)
 
 
 def show_cleaning_page():
-    """Data cleaning page"""
+    """Data cleaning page with enhanced UX"""
+    # UX: Guard clause with helpful guidance
     if st.session_state.data is None:
-        st.warning("⚠️ Please load data first from the Data Input page!")
-        if st.button("Go to Data Input"):
+        st.warning("⚠️ No data loaded yet")
+        st.markdown("""
+        <div class="glass-card" style="text-align: center; padding: 3rem;">
+            <h3>🔍 Ready to Clean Data?</h3>
+            <p style="color: #94a3b8; margin: 1rem 0;">
+                First, you need to load some data to clean
+            </p>
+        </div>
+        """, unsafe_allow_html=True)
+        
+        st.markdown("")
+        if st.button("📁 Go to Data Input", type="primary", use_container_width=True):
             st.session_state.current_step = 'input'
             st.rerun()
         return
     
-    st.header("🧹 Data Cleaning & Transformation")
-    st.markdown("Clean and transform your data interactively")
+    st.markdown("## 🧹 Data Cleaning & Transformation")
+    st.caption("Prepare your data for analysis")
+    st.markdown("")
+    
+    # UX: Show before state metrics
+    with st.expander("📊 Current Data Quality", expanded=True):
+        col1, col2, col3, col4 = st.columns(4)
+        with col1:
+            st.metric("Total Rows", f"{len(st.session_state.data):,}")
+        with col2:
+            missing = st.session_state.data.isnull().sum().sum()
+            st.metric("Missing Values", missing, 
+                     delta=f"-{missing}" if missing > 0 else "None",
+                     delta_color="inverse")
+        with col3:
+            dupes = st.session_state.data.duplicated().sum()
+            st.metric("Duplicates", dupes,
+                     delta=f"-{dupes}" if dupes > 0 else "None",
+                     delta_color="inverse")
+        with col4:
+            completeness = (1 - missing / (len(st.session_state.data) * len(st.session_state.data.columns))) * 100
+            st.metric("Completeness", f"{completeness:.1f}%")
+    
+    st.markdown("")
     
     cleaner = DataCleaner(st.session_state.data)
     cleaned_df = cleaner.show_cleaning_ui()
     
     st.markdown("---")
     
-    col1, col2 = st.columns([3, 1])
+    # UX: Enhanced action buttons with confirmation
+    col1, col2, col3 = st.columns([2, 1, 1])
+    
     with col1:
-        if st.button("💾 Save Cleaned Data", type="primary"):
+        if st.button("💾 Save Cleaned Data", type="primary", use_container_width=True,
+                    help="Apply all changes and save cleaned version"):
             st.session_state.cleaned_data = cleaned_df
             st.session_state.data = cleaned_df  # Update main data too
+            st.session_state.progress['data_cleaned'] = True
             st.success("✅ Cleaned data saved successfully!")
             st.balloons()
+            
+            # UX: Show improvement metrics
+            st.info("💡 **Next Step**: Head to Analysis to explore your clean data")
     
     with col2:
-        if st.button("🔄 Reset to Original"):
-            st.session_state.cleaned_data = None
-            st.info("Reset to original data")
-            st.rerun()
+        if st.button("🔄 Reset Changes", use_container_width=True,
+                    help="Discard all cleaning operations"):
+            if st.session_state.get('confirm_reset_cleaning', False):
+                st.session_state.cleaned_data = None
+                st.session_state.confirm_reset_cleaning = False
+                st.info("Changes reset to original data")
+                st.rerun()
+            else:
+                st.session_state.confirm_reset_cleaning = True
+                st.warning("Click again to confirm")
+    
+    with col3:
+        if st.session_state.get('confirm_reset_cleaning', False):
+            if st.button("❌ Cancel", use_container_width=True):
+                st.session_state.confirm_reset_cleaning = False
+                st.rerun()
 
 
 def show_analysis_page():
-    """Statistical analysis page"""
+    """Statistical analysis page with enhanced UX"""
     data = st.session_state.cleaned_data if st.session_state.cleaned_data is not None else st.session_state.data
     
+    # UX: Guard clause with helpful guidance
     if data is None:
-        st.warning("⚠️ Please load data first!")
+        st.warning("⚠️ No data available for analysis")
+        st.markdown("""
+        <div class="glass-card" style="text-align: center; padding: 3rem;">
+            <h3>📊 Ready to Analyze?</h3>
+            <p style="color: #94a3b8; margin: 1rem 0;">
+                Load your data first to unlock powerful analytics
+            </p>
+        </div>
+        """, unsafe_allow_html=True)
+        
+        st.markdown("")
+        if st.button("📁 Go to Data Input", type="primary", use_container_width=True):
+            st.rerun()
         return
     
-    st.header("📊 Statistical Analysis")
-    st.markdown("Perform comprehensive statistical analysis on your data")
+    st.markdown("## 📊 Statistical Analysis")
+    st.caption("Discover insights in your data")
+    st.markdown("")
+    
+    # UX: Quick data overview
+    with st.expander("📋 Dataset Overview", expanded=False):
+        col1, col2, col3, col4 = st.columns(4)
+        with col1:
+            st.metric("Rows", f"{len(data):,}")
+        with col2:
+            st.metric("Columns", len(data.columns))
+        with col3:
+            numeric_cols = data.select_dtypes(include=[np.number]).columns
+            st.metric("Numeric Columns", len(numeric_cols))
+        with col4:
+            cat_cols = data.select_dtypes(include=['object', 'category']).columns
+            st.metric("Categorical Columns", len(cat_cols))
+    
+    st.markdown("")
     
     analyzer = StatisticalAnalyzer(data)
     analyzer.show_analysis_ui()
+    
+    # UX: Mark analysis as complete
+    st.session_state.progress['analysis_done'] = True
 
 
 def show_visualization_page():
-    """Visualization page"""
+    """Visualization page with enhanced UX"""
     data = st.session_state.cleaned_data if st.session_state.cleaned_data is not None else st.session_state.data
     
+    # UX: Guard clause with helpful guidance
     if data is None:
-        st.warning("⚠️ Please load data first!")
+        st.warning("⚠️ No data available for visualization")
+        st.markdown("""
+        <div class="glass-card" style="text-align: center; padding: 3rem;">
+            <h3>📈 Ready to Visualize?</h3>
+            <p style="color: #94a3b8; margin: 1rem 0;">
+                Load your data first to create stunning visualizations
+            </p>
+        </div>
+        """, unsafe_allow_html=True)
+        
+        st.markdown("")
+        if st.button("📁 Go to Data Input", type="primary", use_container_width=True):
+            st.rerun()
         return
     
-    st.header("📈 Data Visualization")
-    st.markdown("Create beautiful, interactive visualizations")
+    st.markdown("## 📈 Data Visualization")
+    st.caption("Create beautiful, interactive visualizations")
+    st.markdown("")
+    
+    # UX: Quick chart recommendation
+    with st.expander("💡 Chart Selection Guide", expanded=False):
+        st.markdown("""
+        **Choose the right chart:**
+        - **Correlation Heatmap**: See relationships between variables
+        - **Distribution Plot**: Understand data spread and patterns
+        - **Box Plot**: Identify outliers and quartiles
+        - **Scatter Plot**: Explore relationships between two variables
+        - **Bar Chart**: Compare categories
+        - **Line Plot**: Show trends over time
+        """)
+    
+    st.markdown("")
     
     visualizer = VisualizationEngine(data)
     visualizer.show_visualization_ui()
+    
+    # UX: Mark visualization as complete
+    st.session_state.progress['visualization_created'] = True
 
 
 def show_export_page():
-    """Export & download page"""
+    """Export & download page with enhanced UX"""
+    # UX: Guard clause with helpful guidance
     if st.session_state.data is None:
-        st.warning("⚠️ No data to export!")
+        st.warning("⚠️ No data to export")
+        st.markdown("""
+        <div class="glass-card" style="text-align: center; padding: 3rem;">
+            <h3>💾 Ready to Export?</h3>
+            <p style="color: #94a3b8; margin: 1rem 0;">
+                First, load and process your data
+            </p>
+        </div>
+        """, unsafe_allow_html=True)
+        
+        st.markdown("")
+        if st.button("📁 Go to Data Input", type="primary", use_container_width=True):
+            st.rerun()
         return
     
-    st.header("💾 Export Data & Results")
-    st.markdown("Download your processed data and analysis results")
+    st.markdown("## 💾 Export Data & Results")
+    st.caption("Download your processed data and analysis results")
+    st.markdown("")
     
     data_to_export = st.session_state.cleaned_data if st.session_state.cleaned_data is not None else st.session_state.data
+    
+    # UX: Show what will be exported
+    st.info(f"📊 Exporting: **{len(data_to_export):,} rows** × **{len(data_to_export.columns)} columns**")
+    st.markdown("")
     
     col1, col2 = st.columns(2)
     
     with col1:
-        st.subheader("📊 Export Data")
+        st.markdown("""
+        <div class="glass-card">
+            <h3>📊 Export Data</h3>
+            <p style="color: #94a3b8; margin-bottom: 1rem;">
+                Download your processed dataset
+            </p>
+        </div>
+        """, unsafe_allow_html=True)
+        
+        st.markdown("")
         
         # CSV export
         csv = data_to_export.to_csv(index=False).encode('utf-8')
         st.download_button(
             label="📥 Download as CSV",
             data=csv,
-            file_name="exported_data.csv",
+            file_name=f"datadash_export_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv",
             mime="text/csv",
-            use_container_width=True
+            use_container_width=True,
+            help="Best for compatibility and data portability"
         )
         
         # Excel export
@@ -761,9 +1174,10 @@ def show_export_page():
         st.download_button(
             label="📥 Download as Excel",
             data=buffer.getvalue(),
-            file_name="exported_data.xlsx",
+            file_name=f"datadash_export_{datetime.now().strftime('%Y%m%d_%H%M%S')}.xlsx",
             mime="application/vnd.ms-excel",
-            use_container_width=True
+            use_container_width=True,
+            help="Best for Excel users and formatted reports"
         )
         
         # JSON export
@@ -771,22 +1185,35 @@ def show_export_page():
         st.download_button(
             label="📥 Download as JSON",
             data=json_str,
-            file_name="exported_data.json",
+            file_name=f"datadash_export_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json",
             mime="application/json",
-            use_container_width=True
+            use_container_width=True,
+            help="Best for developers and API integration"
         )
+        
+        # UX: Mark export as complete when button is clicked
+        if st.button("✅ Mark Export Complete", use_container_width=True):
+            st.session_state.progress['data_exported'] = True
+            st.success("Export marked as complete!")
     
     with col2:
-        st.subheader("📋 Summary Report")
+        st.markdown("""
+        <div class="glass-card">
+            <h3>📋 Summary Report</h3>
+            <p style="color: #94a3b8; margin-bottom: 1rem;">
+                Generate comprehensive analysis report
+            </p>
+        </div>
+        """, unsafe_allow_html=True)
         
-        # Generate summary report
-        report = f"""
-# Data Analysis Summary Report
-Generated on: {datetime.now().strftime('%Y-%m-%d %H:%M:%S UTC')}
-Data Source: {st.session_state.get('data_source', 'Unknown')}
+        st.markdown("")
+        
+        # Generate summary report with better formatting
+        report = f"""# DataDash Analytics Report
+Generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S UTC')}
 
 ## Dataset Information
-- **Source:** {st.session_state.data_source}
+- **Source:** {st.session_state.get('data_source', 'Unknown')}
 - **Total Rows:** {len(data_to_export):,}
 - **Total Columns:** {len(data_to_export.columns)}
 - **Memory Usage:** {data_to_export.memory_usage(deep=True).sum() / 1024:.2f} KB
@@ -800,30 +1227,54 @@ Data Source: {st.session_state.get('data_source', 'Unknown')}
 ## Missing Values Analysis
 {data_to_export.isnull().sum().to_frame('Missing Count').to_string()}
 
-## Data Quality Score
-- Completeness: {((1 - data_to_export.isnull().sum().sum() / (len(data_to_export) * len(data_to_export.columns))) * 100):.2f}%
-- Duplicate Rows: {data_to_export.duplicated().sum()}
+## Data Quality Metrics
+- **Completeness:** {((1 - data_to_export.isnull().sum().sum() / (len(data_to_export) * len(data_to_export.columns))) * 100):.2f}%
+- **Duplicate Rows:** {data_to_export.duplicated().sum()}
+- **Unique Values per Column:**
+{data_to_export.nunique().to_frame('Unique Count').to_string()}
 
 ---
-Report generated by Data Analysis Dashboard
+Report generated by DataDash Analytics Platform
+https://github.com/ThekingGST/DataDash
         """
         
         st.download_button(
             label="📥 Download Report (TXT)",
             data=report,
-            file_name="analysis_report.txt",
+            file_name=f"datadash_report_{datetime.now().strftime('%Y%m%d_%H%M%S')}.txt",
             mime="text/plain",
-            use_container_width=True
+            use_container_width=True,
+            help="Plain text format for universal compatibility"
         )
         
         # Markdown export
         st.download_button(
             label="📥 Download Report (MD)",
             data=report,
-            file_name="analysis_report.md",
+            file_name=f"datadash_report_{datetime.now().strftime('%Y%m%d_%H%M%S')}.md",
             mime="text/markdown",
-            use_container_width=True
+            use_container_width=True,
+            help="Markdown format for documentation"
         )
+        
+        # UX: Preview report
+        with st.expander("👁️ Preview Report"):
+            st.text(report[:500] + "...")
+    
+    # UX: Success celebration
+    if st.session_state.progress.get('data_exported', False):
+        st.markdown("---")
+        st.success("🎉 **Congratulations!** You've completed the full data analysis workflow!")
+        
+        # UX: Encourage next steps
+        st.markdown("""
+        <div class="glass-card" style="text-align: center;">
+            <h3>What's Next?</h3>
+            <p style="color: #94a3b8;">
+                Load new data to start another analysis, or share your insights with your team!
+            </p>
+        </div>
+        """, unsafe_allow_html=True)
 
 
 if __name__ == "__main__":
