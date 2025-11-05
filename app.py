@@ -71,12 +71,12 @@ def main():
     # Custom CSS - Futuristic Dark Theme with Glassmorphism
     st.markdown("""
         <style>
-        /* Import Google Fonts */
+        /* Import Google Fonts with fallbacks */
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
         
-        /* Global Styles */
+        /* Global Styles with font fallback */
         * {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif !important;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica', 'Arial', sans-serif !important;
         }
         
         /* Main Background */
@@ -516,7 +516,9 @@ def main():
                     if st.session_state.get('confirm_reset', False):
                         st.session_state.data = None
                         st.session_state.cleaned_data = None
-                        st.session_state.progress = {k: False for k in st.session_state.progress}
+                        # UX: Safely reset progress if it exists
+                        if 'progress' in st.session_state:
+                            st.session_state.progress = {k: False for k in st.session_state.progress}
                         st.session_state.confirm_reset = False
                         st.rerun()
                     else:
@@ -547,12 +549,12 @@ def main():
         st.markdown("---")
         st.caption("💫 Session active")
         
-        # UX: Accessibility - Keyboard shortcuts hint
-        with st.expander("⌨️ Keyboard Shortcuts"):
-            st.caption("• Alt+H: Home")
-            st.caption("• Alt+D: Data Input")
-            st.caption("• Alt+C: Cleaning")
-            st.caption("• Alt+A: Analysis")
+        # UX: Accessibility - Keyboard shortcuts hint (Note: Shortcuts require browser extension or custom implementation)
+        with st.expander("⌨️ Keyboard Navigation"):
+            st.caption("Use Tab to navigate between elements")
+            st.caption("Use Enter/Space to activate buttons")
+            st.caption("Use Arrow keys in dropdowns")
+            st.caption("Use Esc to close dialogs")
     
     # Route to pages
     if page == "🏠 Home":
