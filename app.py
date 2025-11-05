@@ -2,6 +2,7 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 import io
+from datetime import datetime
 from modules.data_input import DataInputManager
 from modules.data_cleaning import DataCleaner
 from modules.statistical_analysis import StatisticalAnalyzer
@@ -78,7 +79,6 @@ def main():
             st.warning("⚠️ No data loaded")
         
         st.markdown("---")
-        st.caption(f"👤 User: **ThekingGST**")
         st.caption("🕐 Session active")
     
     # Route to pages
@@ -216,16 +216,21 @@ def show_home_page():
         
         with col2:
             if st.button("🌸 Load Iris Dataset"):
-                from sklearn.datasets import load_iris
-                iris = load_iris()
-                sample_data = pd.DataFrame(
-                    data=iris.data,
-                    columns=iris.feature_names
-                )
-                sample_data['species'] = iris.target
-                st.session_state.data = sample_data
-                st.session_state.data_source = 'sample'
-                st.rerun()
+                try:
+                    from sklearn.datasets import load_iris
+                    iris = load_iris()
+                    sample_data = pd.DataFrame(
+                        data=iris.data,
+                        columns=iris.feature_names
+                    )
+                    sample_data['species'] = iris.target
+                    st.session_state.data = sample_data
+                    st.session_state.data_source = 'sample'
+                    st.rerun()
+                except ImportError:
+                    st.error("❌ scikit-learn not installed. Please install it with: pip install scikit-learn>=1.3.0")
+                except Exception as e:
+                    st.error(f"❌ Error loading Iris dataset: {str(e)}")
 
 
 def show_data_input_page():
@@ -400,8 +405,8 @@ def show_export_page():
         # Generate summary report
         report = f"""
 # Data Analysis Summary Report
-Generated on: 2025-11-04 15:51:39 UTC
-User: ThekingGST
+Generated on: {datetime.now().strftime('%Y-%m-%d %H:%M:%S UTC')}
+Data Source: {st.session_state.get('data_source', 'Unknown')}
 
 ## Dataset Information
 - **Source:** {st.session_state.data_source}
