@@ -17,46 +17,363 @@ def main():
         initial_sidebar_state="expanded"
     )
     
-    # Custom CSS
+    # Custom CSS - Futuristic Dark Theme with Glassmorphism
     st.markdown("""
         <style>
+        /* Import Google Fonts */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+        
+        /* Global Styles */
+        * {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif !important;
+        }
+        
+        /* Main Background */
+        .stApp {
+            background: linear-gradient(135deg, #0f0f1e 0%, #1a1a2e 50%, #16213e 100%);
+        }
+        
+        /* Animated Gradient Header */
         .main-header {
-            font-size: 2.5rem;
-            font-weight: bold;
-            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            font-size: 3rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 25%, #f093fb 50%, #4facfe 75%, #00f2fe 100%);
+            background-size: 200% 200%;
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             text-align: center;
-            padding: 1rem 0;
+            padding: 2rem 0 1rem 0;
+            animation: gradientShift 8s ease infinite;
+            letter-spacing: -0.02em;
         }
-        .stTabs [data-baseweb="tab-list"] {
-            gap: 2rem;
+        
+        @keyframes gradientShift {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
         }
-        .stTabs [data-baseweb="tab"] {
-            height: 50px;
-            padding: 0 24px;
+        
+        /* Glassmorphic Containers */
+        .glass-card {
+            background: rgba(26, 26, 46, 0.6);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(124, 58, 237, 0.2);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
+        
+        .glass-card:hover {
+            transform: translateY(-4px);
+            border-color: rgba(124, 58, 237, 0.4);
+            box-shadow: 0 12px 40px 0 rgba(124, 58, 237, 0.3);
+        }
+        
+        /* Enhanced Metric Cards */
         .metric-card {
-            background-color: #f0f2f6;
-            padding: 1rem;
-            border-radius: 0.5rem;
-            border-left: 4px solid #667eea;
+            background: linear-gradient(135deg, rgba(124, 58, 237, 0.1) 0%, rgba(102, 126, 234, 0.05) 100%);
+            backdrop-filter: blur(10px);
+            padding: 1.5rem;
+            border-radius: 1rem;
+            border: 1px solid rgba(124, 58, 237, 0.3);
+            border-left: 4px solid #7c3aed;
+            box-shadow: 0 4px 16px rgba(124, 58, 237, 0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .metric-card:hover {
+            transform: translateX(4px);
+            border-left-width: 6px;
+            box-shadow: 0 6px 24px rgba(124, 58, 237, 0.2);
+        }
+        
+        /* Sidebar Styling */
+        [data-testid="stSidebar"] {
+            background: linear-gradient(180deg, rgba(15, 15, 30, 0.95) 0%, rgba(26, 26, 46, 0.95) 100%);
+            backdrop-filter: blur(10px);
+            border-right: 1px solid rgba(124, 58, 237, 0.2);
+        }
+        
+        [data-testid="stSidebar"] [data-testid="stMarkdownContainer"] h1 {
+            color: #e2e8f0;
+            font-weight: 700;
+            font-size: 1.5rem;
+        }
+        
+        /* Radio Button Navigation with Neon Effect */
+        .stRadio > div {
+            gap: 0.5rem;
+        }
+        
+        .stRadio > div > label {
+            background: rgba(26, 26, 46, 0.4);
+            border: 1px solid rgba(124, 58, 237, 0.2);
+            border-radius: 0.75rem;
+            padding: 0.75rem 1rem;
+            margin: 0.25rem 0;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .stRadio > div > label:hover {
+            background: rgba(124, 58, 237, 0.15);
+            border-color: rgba(124, 58, 237, 0.4);
+            transform: translateX(4px);
+            box-shadow: 0 4px 12px rgba(124, 58, 237, 0.2);
+        }
+        
+        .stRadio > div > label[data-checked="true"] {
+            background: linear-gradient(135deg, rgba(124, 58, 237, 0.3), rgba(102, 126, 234, 0.3));
+            border-color: #7c3aed;
+            box-shadow: 0 4px 16px rgba(124, 58, 237, 0.3), inset 0 0 20px rgba(124, 58, 237, 0.1);
+        }
+        
+        /* Enhanced Buttons */
+        .stButton > button {
+            background: linear-gradient(135deg, #7c3aed 0%, #667eea 100%);
+            color: white;
+            border: none;
+            border-radius: 0.75rem;
+            padding: 0.75rem 2rem;
+            font-weight: 600;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 16px rgba(124, 58, 237, 0.3);
+        }
+        
+        .stButton > button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(124, 58, 237, 0.5);
+            background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+        }
+        
+        .stButton > button:active {
+            transform: translateY(0);
+        }
+        
+        /* Tabs Enhancement */
+        .stTabs [data-baseweb="tab-list"] {
+            gap: 1rem;
+            background: rgba(26, 26, 46, 0.4);
+            border-radius: 1rem;
+            padding: 0.5rem;
+        }
+        
+        .stTabs [data-baseweb="tab"] {
+            height: 3.5rem;
+            padding: 0 2rem;
+            background: transparent;
+            border-radius: 0.75rem;
+            color: #94a3b8;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .stTabs [data-baseweb="tab"]:hover {
+            background: rgba(124, 58, 237, 0.1);
+            color: #e2e8f0;
+        }
+        
+        .stTabs [data-baseweb="tab"][aria-selected="true"] {
+            background: linear-gradient(135deg, rgba(124, 58, 237, 0.3), rgba(102, 126, 234, 0.3));
+            color: white;
+            box-shadow: 0 4px 12px rgba(124, 58, 237, 0.3);
+        }
+        
+        /* Data Tables */
+        .stDataFrame {
+            border-radius: 1rem;
+            overflow: hidden;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+        }
+        
+        /* Metrics Enhancement */
+        [data-testid="stMetricValue"] {
+            font-size: 2rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #7c3aed, #667eea);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        /* Input Fields */
+        .stTextInput > div > div > input,
+        .stSelectbox > div > div,
+        .stMultiSelect > div > div {
+            background: rgba(26, 26, 46, 0.6) !important;
+            border: 1px solid rgba(124, 58, 237, 0.3) !important;
+            border-radius: 0.75rem !important;
+            color: #e2e8f0 !important;
+            transition: all 0.3s ease;
+        }
+        
+        .stTextInput > div > div > input:focus,
+        .stSelectbox > div > div:focus-within,
+        .stMultiSelect > div > div:focus-within {
+            border-color: #7c3aed !important;
+            box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.2) !important;
+        }
+        
+        /* Expander Enhancement */
+        .streamlit-expanderHeader {
+            background: rgba(26, 26, 46, 0.6);
+            border: 1px solid rgba(124, 58, 237, 0.2);
+            border-radius: 0.75rem;
+            transition: all 0.3s ease;
+        }
+        
+        .streamlit-expanderHeader:hover {
+            background: rgba(124, 58, 237, 0.1);
+            border-color: rgba(124, 58, 237, 0.4);
+        }
+        
+        /* Alert/Info Boxes */
+        .stAlert {
+            background: rgba(26, 26, 46, 0.6);
+            backdrop-filter: blur(10px);
+            border-radius: 0.75rem;
+            border-left: 4px solid;
+            padding: 1rem 1.5rem;
+        }
+        
+        /* Success Alert - Green Neon */
+        [data-baseweb="notification"][kind="success"] {
+            border-left-color: #10b981;
+            box-shadow: 0 4px 16px rgba(16, 185, 129, 0.2);
+        }
+        
+        /* Info Alert - Blue Neon */
+        [data-baseweb="notification"][kind="info"] {
+            border-left-color: #3b82f6;
+            box-shadow: 0 4px 16px rgba(59, 130, 246, 0.2);
+        }
+        
+        /* Warning Alert - Yellow Neon */
+        [data-baseweb="notification"][kind="warning"] {
+            border-left-color: #f59e0b;
+            box-shadow: 0 4px 16px rgba(245, 158, 11, 0.2);
+        }
+        
+        /* Error Alert - Red Neon */
+        [data-baseweb="notification"][kind="error"] {
+            border-left-color: #ef4444;
+            box-shadow: 0 4px 16px rgba(239, 68, 68, 0.2);
+        }
+        
+        /* Progress Bar */
+        .stProgress > div > div > div {
+            background: linear-gradient(90deg, #7c3aed, #667eea, #00f2fe);
+            border-radius: 1rem;
+        }
+        
+        /* Slider Enhancement */
+        .stSlider > div > div > div {
+            background: rgba(124, 58, 237, 0.2);
+        }
+        
+        .stSlider > div > div > div > div {
+            background: linear-gradient(90deg, #7c3aed, #667eea);
+        }
+        
+        /* Loading Animation */
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        .stSpinner > div {
+            border-color: #7c3aed !important;
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+        
+        /* Smooth Scrollbar */
+        ::-webkit-scrollbar {
+            width: 10px;
+            height: 10px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: rgba(26, 26, 46, 0.4);
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(180deg, #7c3aed, #667eea);
+            border-radius: 5px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(180deg, #8b5cf6, #7c3aed);
+        }
+        
+        /* Separator */
+        hr {
+            border: none;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(124, 58, 237, 0.5), transparent);
+            margin: 2rem 0;
+        }
+        
+        /* Download Button */
+        .stDownloadButton > button {
+            background: linear-gradient(135deg, rgba(124, 58, 237, 0.2), rgba(102, 126, 234, 0.2));
+            border: 1px solid rgba(124, 58, 237, 0.4);
+            color: #e2e8f0;
+            border-radius: 0.75rem;
+            transition: all 0.3s ease;
+        }
+        
+        .stDownloadButton > button:hover {
+            background: linear-gradient(135deg, rgba(124, 58, 237, 0.3), rgba(102, 126, 234, 0.3));
+            border-color: #7c3aed;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 16px rgba(124, 58, 237, 0.3);
+        }
+        
+        /* File Uploader */
+        [data-testid="stFileUploader"] {
+            background: rgba(26, 26, 46, 0.6);
+            border: 2px dashed rgba(124, 58, 237, 0.4);
+            border-radius: 1rem;
+            padding: 2rem;
+            transition: all 0.3s ease;
+        }
+        
+        [data-testid="stFileUploader"]:hover {
+            border-color: #7c3aed;
+            background: rgba(124, 58, 237, 0.05);
+        }
+        
+        /* Checkbox and Radio */
+        .stCheckbox, .stRadio {
+            color: #e2e8f0;
+        }
+        
+        /* Add subtle glow to headings */
+        h1, h2, h3 {
+            color: #e2e8f0;
+            text-shadow: 0 0 20px rgba(124, 58, 237, 0.3);
+        }
+        
+        /* Caption text */
+        .caption {
+            color: #94a3b8;
+            font-size: 0.875rem;
         }
         </style>
     """, unsafe_allow_html=True)
     
-    # Header
-    st.markdown('<h1 class="main-header">📊 Interactive Data Analysis Dashboard</h1>', 
+    # Header with animated gradient
+    st.markdown('<h1 class="main-header">✨ DataDash Analytics</h1>', 
                 unsafe_allow_html=True)
-    st.markdown("---")
     
     # Initialize session state
     init_session_state()
     
-    # Sidebar navigation
+    # Sidebar navigation with enhanced styling
     with st.sidebar:
-        st.title("🧭 Navigation")
-        st.markdown("---")
+        st.markdown("### 🧭 Navigation")
+        st.markdown("")
         
         page = st.radio(
             "Select Module",
@@ -67,19 +384,23 @@ def main():
         
         st.markdown("---")
         
-        # Show data info if loaded
+        # Show data info if loaded with enhanced styling
         if st.session_state.data is not None:
             st.success("✅ **Data Loaded**")
-            st.metric("📋 Rows", f"{len(st.session_state.data):,}")
-            st.metric("📊 Columns", len(st.session_state.data.columns))
+            col1, col2 = st.columns(2)
+            with col1:
+                st.metric("📋 Rows", f"{len(st.session_state.data):,}")
+            with col2:
+                st.metric("📊 Cols", len(st.session_state.data.columns))
             
             if st.session_state.cleaned_data is not None:
-                st.info("🧹 **Cleaned Version Available**")
+                st.info("🧹 **Cleaned Available**")
         else:
             st.warning("⚠️ No data loaded")
+            st.caption("Upload data to get started")
         
         st.markdown("---")
-        st.caption("🕐 Session active")
+        st.caption("💫 Session active")
     
     # Route to pages
     if page == "🏠 Home":
@@ -113,60 +434,89 @@ def init_session_state():
 
 
 def show_home_page():
-    """Landing page with instructions"""
-    st.header("Welcome to Your Data Analysis Dashboard! 🎉")
+    """Landing page with enhanced futuristic design"""
+    # Hero section
     st.markdown("""
-    This interactive dashboard allows you to upload, clean, analyze, and visualize your data 
-    with just a few clicks. No coding required!
-    """)
+        <div style="text-align: center; padding: 2rem 0;">
+            <h2 style="font-size: 2.5rem; font-weight: 700; margin-bottom: 1rem;">
+                Welcome to DataDash Analytics 🚀
+            </h2>
+            <p style="font-size: 1.25rem; color: #94a3b8; max-width: 700px; margin: 0 auto;">
+                Transform your data into actionable insights with our powerful, 
+                no-code analytics platform
+            </p>
+        </div>
+    """, unsafe_allow_html=True)
     
-    st.markdown("### 🚀 Quick Start Guide")
+    st.markdown("<br>", unsafe_allow_html=True)
     
-    col1, col2, col3 = st.columns(3)
+    # Quick Start Guide with glass cards
+    st.markdown("### ✨ Quick Start Guide")
+    st.markdown("")
+    
+    col1, col2, col3 = st.columns(3, gap="large")
     
     with col1:
         st.markdown("""
-        <div class="metric-card">
-            <h3>📁 Step 1: Load Data</h3>
-            <ul>
-                <li>Upload CSV/Excel files</li>
-                <li>Or manually enter data</li>
-                <li>Preview your dataset</li>
+        <div class="glass-card">
+            <h3 style="font-size: 1.5rem; margin-bottom: 1rem;">📁 Step 1: Load Data</h3>
+            <ul style="list-style: none; padding-left: 0;">
+                <li style="padding: 0.5rem 0;">✓ Upload CSV/Excel files</li>
+                <li style="padding: 0.5rem 0;">✓ Manual data entry</li>
+                <li style="padding: 0.5rem 0;">✓ Sample datasets</li>
             </ul>
         </div>
         """, unsafe_allow_html=True)
     
     with col2:
         st.markdown("""
-        <div class="metric-card">
-            <h3>🧹 Step 2: Clean Data</h3>
-            <ul>
-                <li>Filter rows & columns</li>
-                <li>Handle missing values</li>
-                <li>Transform data types</li>
+        <div class="glass-card">
+            <h3 style="font-size: 1.5rem; margin-bottom: 1rem;">🧹 Step 2: Clean Data</h3>
+            <ul style="list-style: none; padding-left: 0;">
+                <li style="padding: 0.5rem 0;">✓ Filter rows & columns</li>
+                <li style="padding: 0.5rem 0;">✓ Handle missing values</li>
+                <li style="padding: 0.5rem 0;">✓ Transform data types</li>
             </ul>
         </div>
         """, unsafe_allow_html=True)
     
     with col3:
         st.markdown("""
-        <div class="metric-card">
-            <h3>📊 Step 3: Analyze</h3>
-            <ul>
-                <li>Statistical analysis</li>
-                <li>Interactive charts</li>
-                <li>Export results</li>
+        <div class="glass-card">
+            <h3 style="font-size: 1.5rem; margin-bottom: 1rem;">📊 Step 3: Analyze</h3>
+            <ul style="list-style: none; padding-left: 0;">
+                <li style="padding: 0.5rem 0;">✓ Statistical analysis</li>
+                <li style="padding: 0.5rem 0;">✓ Interactive charts</li>
+                <li style="padding: 0.5rem 0;">✓ Export results</li>
             </ul>
         </div>
         """, unsafe_allow_html=True)
     
-    st.markdown("---")
+    st.markdown("<br><br>", unsafe_allow_html=True)
     
     # Show dataset overview if data loaded
     if st.session_state.data is not None:
-        st.success("### 📋 Current Dataset Overview")
+        st.markdown("### 📊 Current Dataset Overview")
+        st.markdown("")
         
-        tab1, tab2, tab3 = st.tabs(["📊 Preview", "ℹ️ Info", "📈 Summary"])
+        # Metrics row
+        col1, col2, col3, col4, col5 = st.columns(5)
+        with col1:
+            st.metric("📋 Total Rows", f"{len(st.session_state.data):,}")
+        with col2:
+            st.metric("📊 Columns", len(st.session_state.data.columns))
+        with col3:
+            st.metric("💾 Memory", f"{st.session_state.data.memory_usage(deep=True).sum() / 1024:.1f} KB")
+        with col4:
+            st.metric("🔍 Duplicates", st.session_state.data.duplicated().sum())
+        with col5:
+            missing_pct = (st.session_state.data.isnull().sum().sum() / 
+                          (len(st.session_state.data) * len(st.session_state.data.columns)) * 100)
+            st.metric("⚠️ Missing", f"{missing_pct:.1f}%")
+        
+        st.markdown("")
+        
+        tab1, tab2, tab3 = st.tabs(["📋 Preview", "ℹ️ Info", "📈 Summary"])
         
         with tab1:
             st.dataframe(st.session_state.data.head(10), use_container_width=True)
@@ -175,34 +525,49 @@ def show_home_page():
             col1, col2 = st.columns(2)
             
             with col1:
-                st.write("**Data Types:**")
+                st.markdown("**Data Types:**")
                 dtype_df = pd.DataFrame({
                     'Column': st.session_state.data.dtypes.index,
                     'Type': st.session_state.data.dtypes.values.astype(str)
                 })
-                st.dataframe(dtype_df, use_container_width=True)
+                st.dataframe(dtype_df, use_container_width=True, hide_index=True)
             
             with col2:
-                st.write("**Missing Values:**")
+                st.markdown("**Missing Values:**")
                 missing_df = pd.DataFrame({
                     'Column': st.session_state.data.columns,
                     'Missing': st.session_state.data.isnull().sum().values,
                     'Percentage': (st.session_state.data.isnull().sum().values / 
                                  len(st.session_state.data) * 100).round(2)
                 })
-                st.dataframe(missing_df, use_container_width=True)
+                st.dataframe(missing_df, use_container_width=True, hide_index=True)
         
         with tab3:
             st.dataframe(st.session_state.data.describe(), use_container_width=True)
     else:
-        st.info("👈 **Get started by loading your data from the sidebar!**")
+        # Empty state with engaging design
+        st.markdown("""
+            <div style="text-align: center; padding: 3rem 2rem; 
+                        background: rgba(26, 26, 46, 0.4); 
+                        border-radius: 1rem; 
+                        border: 2px dashed rgba(124, 58, 237, 0.3);">
+                <h3 style="font-size: 2rem; margin-bottom: 1rem;">🎯 Ready to Start?</h3>
+                <p style="color: #94a3b8; font-size: 1.1rem; margin-bottom: 2rem;">
+                    Load your data to unlock powerful analytics capabilities
+                </p>
+            </div>
+        """, unsafe_allow_html=True)
         
-        # Sample data option
-        st.markdown("### 📦 Or Try with Sample Data")
-        col1, col2 = st.columns(2)
+        st.markdown("<br>", unsafe_allow_html=True)
+        
+        # Sample data options with improved layout
+        st.markdown("### 📦 Try with Sample Data")
+        st.markdown("")
+        
+        col1, col2, col3 = st.columns([1, 1, 1])
         
         with col1:
-            if st.button("📊 Load Sample Sales Data"):
+            if st.button("📊 Sales Dataset", use_container_width=True):
                 sample_data = pd.DataFrame({
                     'Date': pd.date_range('2024-01-01', periods=100),
                     'Product': np.random.choice(['A', 'B', 'C', 'D'], 100),
@@ -215,7 +580,7 @@ def show_home_page():
                 st.rerun()
         
         with col2:
-            if st.button("🌸 Load Iris Dataset"):
+            if st.button("🌸 Iris Dataset", use_container_width=True):
                 try:
                     from sklearn.datasets import load_iris
                     iris = load_iris()
@@ -228,9 +593,21 @@ def show_home_page():
                     st.session_state.data_source = 'sample'
                     st.rerun()
                 except ImportError:
-                    st.error("❌ scikit-learn not installed. Please install it with: pip install scikit-learn>=1.3.0")
+                    st.error("❌ scikit-learn not installed")
                 except Exception as e:
-                    st.error(f"❌ Error loading Iris dataset: {str(e)}")
+                    st.error(f"❌ Error: {str(e)}")
+        
+        with col3:
+            if st.button("📈 Random Data", use_container_width=True):
+                sample_data = pd.DataFrame({
+                    'ID': range(1, 51),
+                    'Value_A': np.random.randn(50),
+                    'Value_B': np.random.randn(50) * 10,
+                    'Category': np.random.choice(['X', 'Y', 'Z'], 50)
+                })
+                st.session_state.data = sample_data
+                st.session_state.data_source = 'sample'
+                st.rerun()
 
 
 def show_data_input_page():
