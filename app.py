@@ -2,6 +2,7 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 import io
+from datetime import datetime
 from modules.data_input import DataInputManager
 from modules.data_cleaning import DataCleaner
 from modules.statistical_analysis import StatisticalAnalyzer
@@ -227,7 +228,7 @@ def show_home_page():
                     st.session_state.data_source = 'sample'
                     st.rerun()
                 except ImportError:
-                    st.error("❌ scikit-learn not installed. Please install it with: pip install scikit-learn")
+                    st.error("❌ scikit-learn not installed. Please install it with: pip install scikit-learn>=1.3.0")
                 except Exception as e:
                     st.error(f"❌ Error loading Iris dataset: {str(e)}")
 
@@ -402,8 +403,6 @@ def show_export_page():
         st.subheader("📋 Summary Report")
         
         # Generate summary report
-        from datetime import datetime
-        
         report = f"""
 # Data Analysis Summary Report
 Generated on: {datetime.now().strftime('%Y-%m-%d %H:%M:%S UTC')}
