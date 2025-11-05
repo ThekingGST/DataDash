@@ -476,11 +476,11 @@ class DataCleaner:
                         st.success("✅ Filled text columns with most frequent values")
                     
                     elif strategy == "Fill with forward fill":
-                        self.df = self.df.fillna(method='ffill')
+                        self.df = self.df.ffill()
                         st.success("✅ Applied forward fill")
                     
                     elif strategy == "Fill with backward fill":
-                        self.df = self.df.fillna(method='bfill')
+                        self.df = self.df.bfill()
                         st.success("✅ Applied backward fill")
                     
                     elif strategy == "Fill with custom value":
